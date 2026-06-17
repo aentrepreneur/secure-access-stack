@@ -1,0 +1,4 @@
+secure-access-stack/
+  docs/
+  examples/
+  README.md
