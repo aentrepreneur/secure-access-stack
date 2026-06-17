@@ -3,55 +3,86 @@
 ## Public Architecture
 
 ```text
-Users / VPN / Admin Systems
-  -> Access Surface
-  -> MFA Layer
-  -> RADIUS and Directory Layer
-  -> Shared Data and Cache
-  -> Operations and Evidence Flows
+                        +-------------------------+
+                        |    Users / Clients      |
+                        |  VPN / Web / Admin UI   |
+                        +-----------+-------------+
+                                    |
+                            HTTPS / RADIUS
+                                    |
+                        +-----------v-------------+
+                        |   Access Surface        |
+                        |   Reverse Proxy / WAF   |
+                        |   Auth Challenge Entry  |
+                        +-----------+-------------+
+                                    |
+                        +-----------v-------------+
+                        |   MFA Service Layer     |
+                        |   Token Validation      |
+                        |   Enrollment Flows      |
+                        |   Policy Evaluation     |
+                        +-----------+-------------+
+                                    |
+                        +-----------v-------------+
+                        |   RADIUS / Directory    |
+                        |   Network Access Policy |
+                        |   LDAP / Identity Res.  |
+                        |   Authorization Logic   |
+                        +-----------+-------------+
+                                    |
+                        +-----------v-------------+
+                        |   Data and Cache Layer  |
+                        |   Persistent Store      |
+                        |   Session Management    |
+                        |   Policy and Audit Data |
+                        +-----------+-------------+
+                                    |
+                        +-----------v-------------+
+                        |   Operations Layer      |
+                        |   Validation / Health   |
+                        |   Monitoring / Alerts   |
+                        |   Audit Trail / Logs    |
+                        +-------------------------+
 ```
 
-## Layer Breakdown
+## Component Responsibility
 
-### Access Surface
+| Component | Role | Key Integration |
+|-----------|------|-----------------|
+| Reverse Proxy | TLS termination, auth challenge entry, surface hardening | WAF rules, certificate management |
+| MFA Service | Token validation, enrollment orchestration, policy evaluation | RADIUS, LDAP, token store |
+| RADIUS Daemon | Network access policy enforcement, VPN integration | Directory, MFA service |
+| LDAP / Identity Provider | Identity resolution, directory-backed auth flows | User directory, cache layer |
+| Data Store | Persistent policy, token records, session metadata | Backend database, replicated storage |
+| Cache Layer | Lightweight session state, rate-limiting counters | Memory / Redis |
+| Operations Module | Deployment validation, health checks, audit collection | All layers |
 
-- reverse proxy or controlled entry point
-- administrative access surface hardening
-- integration path for internal and remote users
+## Request Flow (Simplified)
 
-### MFA Layer
+```text
+Client -> Proxy (TLS, auth challenge)
+  -> MFA Service (token validation, policy check)
+    -> RADIUS/LDAP (identity resolve, authorization)
+      -> Session Grant (token, cookie, or RADIUS accept)
+        -> Audit Log (evidence record written)
+```
 
-- token-based authentication flows
-- identity challenge and validation logic
-- support for stronger authentication paths
+## Execution Model
 
-### RADIUS and Directory Layer
+The stack separates two operational concerns:
 
-- directory-backed identity resolution
-- VPN or network access integration patterns
-- alignment with existing user management models
+- **Control plane**: configuration, policy, identity integration, deployment logic
+- **Data plane**: authentication requests, token validation, session management, audit streams
 
-### Shared Data and Cache
+Control plane changes do not interrupt data plane operations. This allows policy updates, identity source changes, and operational maintenance without authentication service disruption.
 
-- persistent identity and policy storage
-- lightweight cache or session support
-- separation between control logic and state
+## Design Rationale
 
-### Operations and Evidence Flows
+- productization means the architecture must support repeatable deployment, not only functional correctness
+- RADIUS and LDAP integration is intentional: most SMB infrastructure already uses directory services and network access policies
+- the cache and data separation allows the MFA layer to remain stateless for request processing
+- audit and operations are treated as architectural layers, not afterthoughts
 
-- repeatable deployment checks
-- validation and health verification
-- audit-oriented operational records
+## Public Boundary
 
-## Core Building Blocks
-
-- secure authentication surface
-- MFA orchestration
-- RADIUS-oriented access integration
-- directory-backed identity integration
-- repeatable deployment logic
-- validation and operations model
-
-## Design Principle
-
-The public repo does not expose sensitive implementation details. It shows how the stack is framed as a maintainable product and operational architecture.
+This document describes system structure and integration logic without exposing sensitive internal implementation details such as exact software versions, certificate paths, or deployment secrets.

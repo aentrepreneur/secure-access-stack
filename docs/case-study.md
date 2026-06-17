@@ -2,36 +2,51 @@
 
 ## Context
 
-This public-safe case study documents the first strong productization pattern behind Secure Access Stack.
+This case study documents the productization path behind Secure Access Stack.
 
-The implementation path started from a deployable MFA platform built around privacyIDEA-oriented infrastructure, then evolved through delivery, support, and local market constraints into a more operationally coherent security offering.
+The implementation started from a deployable MFA platform built around privacyIDEA-oriented infrastructure. Over multiple delivery cycles, the work evolved from a technical install into an operationally coherent security offering shaped by real market constraints in Guatemala and LATAM.
 
-## What The Product Solves
+## The Problem
 
-The problem was not only missing MFA.
+The trigger was not "we need MFA." It was the convergence of:
 
-The real problem was the combination of:
+- **Weak access controls**: VPNs and administrative systems relying on password-only authentication
+- **Operational friction**: upstream identity tooling required significant ongoing expertise
+- **Pricing mismatch**: international SaaS MFA products priced above local SMB budgets
+- **Support gap**: global vendors offered limited local deployment and support models
 
-- weak access controls around VPN and administrative systems
-- high operational friction in upstream identity tooling
-- pricing mismatch between international SaaS products and local budgets
-- lack of regionally adapted support and deployment logic
+## The Product Shift
 
-## Product Framing
+The key insight was that the buyer was not purchasing "TOTP" or "RADIUS." They were purchasing:
 
-Secure Access Stack turns that problem into a serviceable architecture:
+- reduced exposure to credential-based incidents
+- clearer audit posture for compliance and stakeholder confidence
+- lower operational burden on internal teams
+- a supportable operating model
 
-- stronger authentication for critical access paths
-- clearer integration with directory and network access systems
-- a more repeatable rollout model
-- an operating model that local teams can support
+Secure Access Stack formalized this shift by framing MFA and identity hardening as a productized operational layer with explicit delivery, support, and maintenance logic.
+
+## Architecture Decisions Shaped By The Context
+
+- RADIUS and LDAP as primary integration patterns because most SMBs already have directory services and VPN infrastructure
+- Two-layer service model (implementation + operations) instead of a one-time install
+- Audit and evidence as built-in architectural concerns, not add-ons
+- Deployment logic designed for small technical teams, not dedicated security staff
+
+## Results Framework
+
+- **Security outcome**: stronger authentication for critical access paths
+- **Operational outcome**: repeatable rollout and maintenance model
+- **Business outcome**: identity hardening framed as a manageable service line
+- **Regional outcome**: architecture adapted to Guatemala and LATAM constraints
 
 ## Lessons Learned
 
 - the client rarely buys a protocol, they buy risk reduction
 - deployment speed matters, but maintainability matters just as much
-- compliance language often helps translate technical value into business value
+- compliance language often translates technical value into business value
 - productization is what turns infrastructure work into a repeatable offer
+- regional adaptation is a competitive advantage, not a limitation
 
 ## Public Boundaries
 

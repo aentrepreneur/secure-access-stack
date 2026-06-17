@@ -1,0 +1,1 @@
+client-request -> proxy-challenge -> mfa-validate -> identity-resolve -> policy-check -> session-grant -> audit-log

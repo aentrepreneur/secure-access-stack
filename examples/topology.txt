@@ -1,0 +1,14 @@
+edge/
+  proxy/        # reverse proxy, auth challenge, WAF
+  certs/        # TLS termination
+services/
+  mfa/          # token validation, enrollment
+  radius/       # network access policy
+  ldap/         # identity resolution
+data/
+  store/        # persistent policy and records
+  cache/        # session state, rate limiting
+ops/
+  validate/     # deployment health checks
+  audit/        # operational evidence trails
+  monitor/      # uptime and service health

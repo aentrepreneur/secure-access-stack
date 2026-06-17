@@ -4,9 +4,7 @@ Enterprise-grade MFA and identity hardening for SMB environments.
 
 ## Overview
 
-Secure Access Stack is a public-safe case study derived from real privacyIDEA deployment and productization work.
-
-It focuses on turning complex MFA and identity infrastructure into a practical, deployable, and maintainable security offering for SMBs in Guatemala and LATAM.
+Secure Access Stack is a public-safe case study derived from real privacyIDEA deployment and productization work. It documents how complex MFA and identity infrastructure can be translated into a deployable, maintainable security offering for SMBs in Guatemala and LATAM.
 
 This repository is intentionally architecture-led. It documents system design, delivery logic, regional fit, and business framing without exposing sensitive internal implementation details.
 
@@ -35,25 +33,78 @@ It combines:
 
 ## Deployment Model
 
-The public framing for this system follows a two-layer service model:
+The public framing follows a two-layer service model:
 
-- initial implementation: stack setup, identity integration, security baseline, operator handoff
-- ongoing operations: updates, validation, monitoring, incident support, and operational maintenance
+- **Initial implementation**: environment prep, identity integration, security baseline, operator handoff
+- **Ongoing operations**: updates, validation, monitoring, incident support, operational maintenance
 
 This turns identity hardening into a manageable service line rather than a one-time technical install.
 
 ## Public Architecture
 
 ```text
-Users / VPN / Admin Systems
-  -> Reverse Proxy / Access Surface
-  -> MFA Service Layer
-  -> RADIUS / Directory Integration
-  -> Shared Data and Cache Layer
-  -> Operations, Validation, and Evidence Flows
+                        +-------------------------+
+                        |    Users / Clients      |
+                        |  VPN / Web / Admin UI   |
+                        +-----------+-------------+
+                                    |
+                            HTTPS / RADIUS
+                                    |
+                        +-----------v-------------+
+                        |   Access Surface        |
+                        |   Reverse Proxy / WAF   |
+                        |   Auth Challenge Entry  |
+                        +-----------+-------------+
+                                    |
+                        +-----------v-------------+
+                        |   MFA Service Layer     |
+                        |   Token Validation      |
+                        |   Enrollment Flows      |
+                        |   Policy Evaluation     |
+                        +-----------+-------------+
+                                    |
+                        +-----------v-------------+
+                        |   RADIUS / Directory    |
+                        |   Network Access Policy |
+                        |   LDAP / Identity Res.  |
+                        |   Authorization Logic   |
+                        +-----------+-------------+
+                                    |
+                        +-----------v-------------+
+                        |   Data and Cache Layer  |
+                        |   Persistent Store      |
+                        |   Session Management    |
+                        |   Policy and Audit Data |
+                        +-----------+-------------+
+                                    |
+                        +-----------v-------------+
+                        |   Operations Layer      |
+                        |   Validation / Health   |
+                        |   Monitoring / Alerts   |
+                        |   Audit Trail / Logs    |
+                        +-------------------------+
 ```
 
-See `docs/architecture.md` for the public architecture view.
+See `docs/architecture.md` for the full public architecture view with component responsibility table.
+
+## Quick Start Workflow (Illustrative)
+
+```bash
+# deployment validation
+./validate.sh --check identity-integration
+./validate.sh --check mfa-service
+./validate.sh --check radius-policy
+
+# health verification
+./health.sh --ping mfa-service --expect 200
+./health.sh --ping radius --expect accept
+
+# operational review
+./audit.sh --export last-30-days
+./audit.sh --summary access-events
+```
+
+These commands are illustrative of the deployment and operations model. The repo documents architecture, not executable code.
 
 ## Why It Matters
 
@@ -82,13 +133,6 @@ See `docs/case-study.md` for the public-safe version of the implementation story
 
 This work is especially relevant in Guatemala and LATAM contexts where identity hardening, auditability, and secure access controls must be balanced against cost, maintainability, and local operational realities.
 
-The strongest architectural themes in this region include:
-
-- perimeter hardening for exposed systems
-- stronger identity assurance for VPN and admin access
-- auditable operational records
-- encryption-aware handling of sensitive systems and data
-
 See `docs/regulatory-context.md` for the regional lens used in this public brief.
 
 ## Repository Structure
@@ -99,21 +143,25 @@ secure-access-stack/
   docs/
     architecture.md
     case-study.md
+    design-principles.md
     regulatory-context.md
     roadmap.md
     use-cases.md
   examples/
     deployment-model.md
+    lifecycle.txt
     public-structure.txt
+    topology.txt
     value-proposition.md
 ```
 
 ## Documentation
 
-- `docs/architecture.md`: public architecture and layer model
-- `docs/case-study.md`: productized MFA implementation summary
-- `docs/regulatory-context.md`: Guatemala and LATAM context
-- `docs/use-cases.md`: target scenarios and outcomes
+- `docs/architecture.md`: public architecture, component responsibilities, and execution model
+- `docs/case-study.md`: productized MFA implementation summary with lessons learned
+- `docs/design-principles.md`: framework intent, design rules, and relation to NEXUS ecosystem
+- `docs/regulatory-context.md`: Guatemala and LATAM compliance and operational context
+- `docs/use-cases.md`: target scenarios, customer archetypes, and business outcomes
 - `docs/roadmap.md`: public direction and expansion areas
 
 ## Public Repo Policy
